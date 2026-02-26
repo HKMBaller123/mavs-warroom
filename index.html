@@ -3,54 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAVS WAR ROOM</title>
+<title>NBA COMMAND CENTER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy: #001529;
-  --blue: #00538C;
-  --silver: #B8C4CA;
-  --white: #FFFFFF;
-  --accent: #00A9E0;
+  --bg: #03060d;
+  --card: rgba(8, 16, 32, 0.9);
+  --border: rgba(255,255,255,0.07);
+  --accent: #00c8ff;
+  --white: #ffffff;
+  --dim: rgba(255,255,255,0.35);
   --win: #00e676;
   --loss: #ff1744;
-  --dim: rgba(184,196,202,0.4);
-  --card: rgba(0,21,41,0.85);
-  --border: rgba(0,169,224,0.18);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #000d1a;
+  background: var(--bg);
   font-family: 'DM Mono', monospace;
-  color: var(--silver);
+  color: var(--white);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Animated background grid */
+/* Grid background */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0,83,140,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,83,140,0.07) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Glow orb */
-body::after {
-  content: '';
-  position: fixed;
-  top: -200px; left: 50%;
-  transform: translateX(-50%);
-  width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(0,83,140,0.25) 0%, transparent 70%);
+    linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
 }
@@ -58,9 +44,9 @@ body::after {
 .container {
   position: relative;
   z-index: 1;
-  max-width: 1300px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 28px 24px;
 }
 
 /* ── HEADER ── */
@@ -68,441 +54,294 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-
-.mavs-logo {
-  width: 56px; height: 56px;
-  background: linear-gradient(135deg, var(--blue), var(--accent));
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.logo {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: white;
-  letter-spacing: 1px;
-  box-shadow: 0 0 24px rgba(0,169,224,0.4);
-}
-
-.header-title h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  letter-spacing: 4px;
+  font-size: 32px;
+  letter-spacing: 6px;
   color: var(--white);
-  line-height: 1;
 }
-
-.header-title p {
-  font-size: 10px;
-  letter-spacing: 3px;
-  color: var(--accent);
-  margin-top: 2px;
-}
+.logo span { color: var(--accent); }
 
 .header-right {
-  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .live-badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,23,68,0.15);
-  border: 1px solid rgba(255,23,68,0.3);
+  background: rgba(255,23,68,0.12);
+  border: 1px solid rgba(255,23,68,0.25);
   border-radius: 20px;
-  padding: 4px 12px;
+  padding: 5px 14px;
   font-size: 10px;
   letter-spacing: 2px;
   color: var(--loss);
-  margin-bottom: 6px;
 }
 
 .live-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--loss);
-  animation: blink 1s ease-in-out infinite;
+  animation: blink 1s infinite;
 }
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
 #clock {
-  font-size: 13px;
-  color: var(--dim);
+  font-size: 12px;
   letter-spacing: 2px;
-}
-
-/* ── RECORD BAR ── */
-.record-bar {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.stat-pill {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(12px);
-  transition: transform 0.2s, border-color 0.2s;
-}
-
-.stat-pill:hover {
-  transform: translateY(-2px);
-  border-color: rgba(0,169,224,0.4);
-}
-
-.stat-pill::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--blue), var(--accent));
-}
-
-.stat-pill-val {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  color: var(--white);
-  line-height: 1;
-}
-
-.stat-pill-val.green { color: var(--win); }
-.stat-pill-val.red { color: var(--loss); }
-.stat-pill-val.blue { color: var(--accent); }
-
-.stat-pill-label {
-  font-size: 9px;
-  letter-spacing: 3px;
   color: var(--dim);
-  margin-top: 4px;
-  text-transform: uppercase;
 }
 
-/* ── MAIN GRID ── */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
-  backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-}
-
-.card-title {
+/* ── SECTION TITLE ── */
+.section-title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px;
-  letter-spacing: 3px;
+  font-size: 15px;
+  letter-spacing: 4px;
   color: var(--accent);
   margin-bottom: 16px;
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── SCOREBOARD ── */
+#scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.score-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  backdrop-filter: blur(12px);
+}
+
+.score-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0,200,255,0.2);
+}
+
+.score-card.live {
+  border-color: rgba(255,23,68,0.3);
+}
+
+.score-card.live::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--loss), transparent);
+}
+
+.score-card.final::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(0,200,255,0.5), transparent);
+}
+
+.score-card.upcoming::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.15), transparent);
+}
+
+.score-status {
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.score-status.live-status { color: var(--loss); }
+.score-status.final-status { color: var(--dim); }
+.score-status.upcoming-status { color: var(--accent); }
+
+.status-pulse {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--loss);
+  animation: blink 1s infinite;
+}
+
+.matchup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.card-title span {
-  width: 3px; height: 16px;
-  background: var(--accent);
-  border-radius: 2px;
-  display: inline-block;
-}
-
-/* ── NEXT GAME ── */
-.next-game {
-  grid-column: 1 / -1;
-}
-
-.matchup-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  padding: 20px 0;
-}
-
-.team-side {
-  text-align: center;
+.team-block {
   flex: 1;
+  text-align: center;
 }
 
 .team-abbr {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 52px;
-  letter-spacing: 4px;
+  font-size: 26px;
+  letter-spacing: 2px;
   color: var(--white);
   line-height: 1;
 }
 
-.team-abbr.mavs { color: var(--accent); text-shadow: 0 0 30px rgba(0,169,224,0.5); }
-
-.team-record {
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  margin-top: 4px;
-}
-
-.vs-divider {
-  text-align: center;
-}
-
-.vs-text {
+.team-score {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--dim);
-  letter-spacing: 3px;
-}
-
-.game-meta {
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--accent);
-  margin-top: 4px;
-}
-
-.countdown-bar {
-  margin-top: 16px;
-  padding: 12px 16px;
-  background: rgba(0,169,224,0.06);
-  border: 1px solid rgba(0,169,224,0.12);
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: 2px;
-}
-
-.countdown-label { color: var(--dim); }
-.countdown-val { color: var(--accent); font-weight: 500; }
-
-/* ── RECENT RESULTS ── */
-.results-list { display: flex; flex-direction: column; gap: 8px; }
-
-.result-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  transition: background 0.2s;
-  font-size: 12px;
-}
-
-.result-row:hover { background: rgba(0,169,224,0.06); }
-
-.result-outcome {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  width: 24px;
-}
-
-.result-outcome.W { color: var(--win); }
-.result-outcome.L { color: var(--loss); }
-
-.result-opponent { color: var(--silver); flex: 1; margin-left: 12px; letter-spacing: 1px; }
-.result-home { font-size: 9px; color: var(--dim); margin-left: 4px; }
-
-.result-score {
-  font-weight: 500;
-  letter-spacing: 1px;
+  font-size: 36px;
   color: var(--white);
-}
-
-.result-date { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
-
-/* ── UPCOMING GAMES ── */
-.upcoming-list { display: flex; flex-direction: column; gap: 8px; }
-
-.upcoming-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  font-size: 12px;
-  transition: background 0.2s;
-}
-
-.upcoming-row:hover { background: rgba(0,169,224,0.06); }
-.upcoming-row.next { border-color: rgba(0,169,224,0.3); background: rgba(0,169,224,0.05); }
-
-.upcoming-opponent { color: var(--silver); letter-spacing: 1px; flex: 1; }
-.upcoming-ha { font-size: 9px; letter-spacing: 1px; padding: 2px 6px; border-radius: 3px; margin-left: 6px; }
-.upcoming-ha.home { background: rgba(0,169,224,0.15); color: var(--accent); }
-.upcoming-ha.away { background: rgba(184,196,202,0.08); color: var(--dim); }
-.upcoming-date { font-size: 10px; color: var(--dim); letter-spacing: 1px; }
-
-/* ── WEST STANDINGS ── */
-.standings-table { width: 100%; }
-
-.standings-row {
-  display: grid;
-  grid-template-columns: 24px 1fr 36px 36px 50px;
-  gap: 8px;
-  align-items: center;
-  padding: 7px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  letter-spacing: 1px;
-  transition: background 0.15s;
-}
-
-.standings-row:hover { background: rgba(0,169,224,0.06); }
-.standings-row.mavs-row {
-  background: rgba(0,169,224,0.1);
-  border: 1px solid rgba(0,169,224,0.25);
-  border-radius: 6px;
-}
-
-.standings-row.header {
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-}
-
-.s-rank { color: var(--dim); text-align: center; }
-.s-team { color: var(--silver); }
-.s-team.mavs-team { color: var(--accent); font-weight: 500; }
-.s-w { color: var(--win); text-align: center; }
-.s-l { color: var(--loss); text-align: center; }
-.s-pct { color: var(--dim); text-align: right; }
-
-/* ── ROSTER / INJURIES ── */
-.roster-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.player-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  transition: all 0.2s;
-}
-
-.player-row:hover { background: rgba(0,169,224,0.06); }
-
-.player-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  color: var(--blue);
-  width: 28px;
-  text-align: center;
-}
-
-.player-info { flex: 1; }
-
-.player-name {
-  font-size: 12px;
-  color: var(--white);
-  letter-spacing: 1px;
-  font-weight: 500;
-}
-
-.player-pos {
-  font-size: 9px;
-  color: var(--dim);
-  letter-spacing: 2px;
+  line-height: 1;
   margin-top: 2px;
 }
 
-.player-stats {
-  text-align: right;
-  font-size: 11px;
-}
+.team-score.winning { color: var(--win); }
+.team-score.losing  { color: var(--dim); }
 
-.player-ppg { color: var(--white); font-weight: 500; }
-.player-misc { color: var(--dim); font-size: 9px; letter-spacing: 1px; margin-top: 2px; }
-
-.status-badge {
-  padding: 3px 8px;
-  border-radius: 3px;
-  font-size: 8px;
+.score-divider {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  color: var(--dim);
   letter-spacing: 2px;
-  font-weight: 500;
+  text-align: center;
 }
 
-.status-badge.active { background: rgba(0,230,118,0.12); color: var(--win); border: 1px solid rgba(0,230,118,0.2); }
-.status-badge.questionable { background: rgba(255,193,7,0.12); color: #ffc107; border: 1px solid rgba(255,193,7,0.2); }
-.status-badge.out { background: rgba(255,23,68,0.12); color: var(--loss); border: 1px solid rgba(255,23,68,0.2); }
+.tip-time {
+  font-size: 13px;
+  color: var(--accent);
+  margin-top: 2px;
+}
 
-/* ── STREAK VIZ ── */
-.streak-dots {
+/* ── TEAMS GRID ── */
+#teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.team-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
   display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
 }
 
-.streak-dot {
-  width: 28px; height: 28px;
-  border-radius: 4px;
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background: var(--team-color, var(--accent));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.team-card:hover::before { opacity: 1; }
+
+.team-logo-placeholder {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  background: var(--team-color, rgba(0,200,255,0.15));
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  transition: transform 0.15s;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--white);
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 
-.streak-dot:hover { transform: scale(1.15); }
-.streak-dot.W { background: rgba(0,230,118,0.15); color: var(--win); border: 1px solid rgba(0,230,118,0.3); }
-.streak-dot.L { background: rgba(255,23,68,0.1); color: var(--loss); border: 1px solid rgba(255,23,68,0.2); }
+.team-info { flex: 1; min-width: 0; }
 
-/* ── BOTTOM GRID ── */
-.bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+.team-name {
+  font-size: 11px;
+  color: var(--white);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ── FOOTER ── */
+.team-record {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.war-room-arrow {
+  font-size: 12px;
+  color: var(--dim);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.team-card:hover .war-room-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* Loading state */
+.loading-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  height: 100px;
+}
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.refresh-note {
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+
 footer {
-  margin-top: 24px;
+  margin-top: 40px;
   padding-top: 16px;
   border-top: 1px solid var(--border);
   display: flex;
@@ -512,422 +351,263 @@ footer {
   color: var(--dim);
 }
 
-/* Fade in animation */
-.card, .stat-pill {
-  animation: fadeUp 0.5s ease forwards;
+/* fade in */
+.score-card, .team-card {
+  animation: fadeUp 0.4s ease forwards;
   opacity: 0;
 }
-
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.card:nth-child(1) { animation-delay: 0.05s; }
-.card:nth-child(2) { animation-delay: 0.1s; }
-.card:nth-child(3) { animation-delay: 0.15s; }
-.card:nth-child(4) { animation-delay: 0.2s; }
-.card:nth-child(5) { animation-delay: 0.25s; }
-.stat-pill:nth-child(1) { animation-delay: 0.0s; }
-.stat-pill:nth-child(2) { animation-delay: 0.05s; }
-.stat-pill:nth-child(3) { animation-delay: 0.1s; }
-.stat-pill:nth-child(4) { animation-delay: 0.15s; }
-.stat-pill:nth-child(5) { animation-delay: 0.2s; }
-
-@media (max-width: 900px) {
-  .main-grid, .bottom-grid { grid-template-columns: 1fr; }
-  .record-bar { grid-template-columns: repeat(3, 1fr); }
-  .next-game { grid-column: 1; }
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <!-- HEADER -->
   <header>
-    <div class="header-left">
-      <div class="mavs-logo">DAL</div>
-      <div class="header-title">
-        <h1>MAVS WAR ROOM</h1>
-        <p>DALLAS MAVERICKS · INTELLIGENCE DASHBOARD · FLAGG ERA</p>
-      </div>
-    </div>
+    <div class="logo">NBA <span>COMMAND</span> CENTER</div>
     <div class="header-right">
-      <div class="live-badge"><div class="live-dot"></div>LIVE DATA</div>
-      <div id="clock">— : — : — CST</div>
+      <div class="live-badge"><div class="live-dot"></div>LIVE SCORES</div>
+      <div id="clock">--:--:-- EST</div>
     </div>
   </header>
 
-  <!-- RECORD BAR -->
-  <div class="record-bar">
-    <div class="stat-pill">
-      <div class="stat-pill-val">21</div>
-      <div class="stat-pill-label">Wins</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill-val red">36</div>
-      <div class="stat-pill-label">Losses</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill-val blue">.368</div>
-      <div class="stat-pill-label">Win %</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill-val">29th</div>
-      <div class="stat-pill-label">West Rank</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill-val green">W</div>
-      <div class="stat-pill-label">vs BKN 123-114</div>
-    </div>
-  </div>
+  <!-- SCOREBOARD -->
+  <div class="section-title">// TODAY'S GAMES <span id="games-count" style="font-size:11px; color:var(--dim);"></span></div>
+  <div id="scoreboard"><div class="loading-shimmer"></div><div class="loading-shimmer"></div><div class="loading-shimmer"></div></div>
+  <div class="refresh-note" id="refresh-note">REFRESHING EVERY 30 SECONDS</div>
 
-  <!-- NEXT GAME + STREAK -->
-  <div class="main-grid">
-    <div class="card next-game">
-      <div class="card-title"><span></span>NEXT GAME</div>
-      <div class="matchup-display">
-        <div class="team-side">
-          <div class="team-abbr mavs">DAL</div>
-          <div class="team-record">21-36 · HOME</div>
-        </div>
-        <div class="vs-divider">
-          <div class="vs-text">VS</div>
-          <div class="game-meta">FEB 26 · 7:30 PM CST</div>
-          <div class="game-meta" style="color:var(--dim); margin-top:4px;">AMERICAN AIRLINES CENTER</div>
-        </div>
-        <div class="team-side">
-          <div class="team-abbr">SAC</div>
-          <div class="team-record">13-46 · AWAY</div>
-        </div>
-      </div>
-      <div style="margin-bottom:12px; padding:10px 14px; background:rgba(255,23,68,0.05); border:1px solid rgba(255,23,68,0.15); border-radius:6px; font-size:10px; letter-spacing:1px;">
-        <span style="color:var(--loss);">⚠ INJURY REPORT: </span>
-        <span style="color:var(--dim);">Cooper Flagg (left foot sprain) OUT · Kyrie Irving (knee) OUT · Dereck Lively II OUT · Daniel Gafford (right ankle) QUESTIONABLE</span>
-      </div>
-      <div class="countdown-bar">
-        <span class="countdown-label">TIPOFF IN</span>
-        <span class="countdown-val" id="tipoff-countdown">CALCULATING...</span>
-        <span class="countdown-label">BROADCAST</span>
-        <span class="countdown-val">BALLY SPORTS SW</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- RESULTS + UPCOMING -->
-  <div class="main-grid" style="margin-bottom:16px;">
-    <!-- Recent Results -->
-    <div class="card">
-      <div class="card-title"><span></span>RECENT RESULTS</div>
-      <div class="streak-dots" style="margin-bottom:14px;">
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot L">L</div>
-        <div class="streak-dot W">W</div>
-        <div class="streak-dot W">W</div>
-      </div>
-      <div class="results-list">
-        <div class="result-row">
-          <div class="result-outcome W">W</div>
-          <div class="result-opponent">vs BKN <span class="result-home">HOME</span></div>
-          <div class="result-score">123–114</div>
-          <div class="result-date">FEB 24</div>
-        </div>
-        <div class="result-row">
-          <div class="result-outcome W">W</div>
-          <div class="result-opponent">vs IND <span class="result-home">AWAY</span></div>
-          <div class="result-score">134–130</div>
-          <div class="result-date">FEB 22</div>
-        </div>
-        <div class="result-row">
-          <div class="result-outcome L">L</div>
-          <div class="result-opponent">vs MIN <span class="result-home">AWAY</span></div>
-          <div class="result-score">111–122</div>
-          <div class="result-date">FEB 20</div>
-        </div>
-        <div class="result-row">
-          <div class="result-outcome L">L</div>
-          <div class="result-opponent">vs LAL <span class="result-home">AWAY</span></div>
-          <div class="result-score">104–124</div>
-          <div class="result-date">FEB 12</div>
-        </div>
-        <div class="result-row">
-          <div class="result-outcome L">L</div>
-          <div class="result-opponent">vs PHX <span class="result-home">AWAY</span></div>
-          <div class="result-score">111–120</div>
-          <div class="result-date">FEB 10</div>
-        </div>
-        <div class="result-row">
-          <div class="result-outcome L">L</div>
-          <div class="result-opponent">vs SAS <span class="result-home">AWAY</span></div>
-          <div class="result-score">125–138</div>
-          <div class="result-date">FEB 7</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upcoming Schedule -->
-    <div class="card">
-      <div class="card-title"><span></span>UPCOMING SCHEDULE</div>
-      <div class="upcoming-list">
-        <div class="upcoming-row next">
-          <div class="upcoming-opponent">Sacramento Kings <span class="upcoming-ha home">HOME</span></div>
-          <div class="upcoming-date">FEB 26 · 7:30P</div>
-        </div>
-        <div class="upcoming-row">
-          <div class="upcoming-opponent">Memphis Grizzlies <span class="upcoming-ha home">HOME</span></div>
-          <div class="upcoming-date">FEB 27 · 7:30P</div>
-        </div>
-        <div class="upcoming-row">
-          <div class="upcoming-opponent">OKC Thunder <span class="upcoming-ha home">HOME</span></div>
-          <div class="upcoming-date">MAR 1 · 7:00P</div>
-        </div>
-        <div class="upcoming-row">
-          <div class="upcoming-opponent">Charlotte Hornets <span class="upcoming-ha away">AWAY</span></div>
-          <div class="upcoming-date">MAR 3 · 6:00P</div>
-        </div>
-        <div class="upcoming-row">
-          <div class="upcoming-opponent">Orlando Magic <span class="upcoming-ha away">AWAY</span></div>
-          <div class="upcoming-date">MAR 5 · 6:00P</div>
-        </div>
-      </div>
-
-      <!-- Head to head vs SAC -->
-      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
-        <div class="card-title" style="font-size:12px; margin-bottom:10px;"><span></span>H2H VS SAC THIS SEASON</div>
-        <div style="display:flex; gap:24px; font-size:11px; letter-spacing:1px;">
-          <div>
-            <div style="color:var(--white); font-family:'Bebas Neue'; font-size:28px;">1–1</div>
-            <div style="color:var(--dim); font-size:9px; letter-spacing:2px;">SERIES TIED</div>
-          </div>
-          <div style="flex:1;">
-            <div style="color:var(--dim); margin-bottom:4px; font-size:10px;">LAST MEETING</div>
-            <div style="color:var(--silver);">DAL 121 – CHA 123 <span style="color:var(--loss); font-size:9px;">L</span></div>
-            <div style="color:var(--dim); font-size:10px; margin-top:2px;">JAN 29 · Dallas</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ROSTER + STANDINGS + INJURIES -->
-  <div class="bottom-grid">
-    <!-- Roster - AI Powered -->
-    <div class="card" style="grid-column: span 2;">
-      <div class="card-title" id="roster-title"><span></span>ROSTER & STATS <span id="roster-badge" style="font-size:9px; color:var(--accent); letter-spacing:2px; font-family:DM Mono,monospace;">AI · INTEL</span></div>
-      <div id="roster-grid" class="roster-grid"></div>
-      <button onclick="fetchRosterAI()" style="margin-top:14px; background:rgba(0,169,224,0.08); border:1px solid rgba(0,169,224,0.2); color:var(--accent); font-family:DM Mono,monospace; font-size:10px; letter-spacing:2px; padding:8px 18px; cursor:pointer; border-radius:4px;">⟳ REFRESH INTEL</button>
-    </div>
-
-    <!-- West Standings -->
-    <div class="card">
-      <div class="card-title"><span></span>WESTERN CONFERENCE</div>
-      <div class="standings-table">
-        <div class="standings-row header">
-          <div class="s-rank">#</div>
-          <div class="s-team">TEAM</div>
-          <div class="s-w">W</div>
-          <div class="s-l">L</div>
-          <div class="s-pct">PCT</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">1</div><div class="s-team">OKC</div><div class="s-w">45</div><div class="s-l">14</div><div class="s-pct">.763</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">2</div><div class="s-team">SAS</div><div class="s-w">41</div><div class="s-l">16</div><div class="s-pct">.719</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">3</div><div class="s-team">DEN</div><div class="s-w">36</div><div class="s-l">22</div><div class="s-pct">.621</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">4</div><div class="s-team">MIN</div><div class="s-w">36</div><div class="s-l">23</div><div class="s-pct">.610</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">5</div><div class="s-team">HOU</div><div class="s-w">35</div><div class="s-l">21</div><div class="s-pct">.625</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">6</div><div class="s-team">LAL</div><div class="s-w">34</div><div class="s-l">23</div><div class="s-pct">.596</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">7</div><div class="s-team">PHX</div><div class="s-w">33</div><div class="s-l">26</div><div class="s-pct">.559</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">8</div><div class="s-team">GSW</div><div class="s-w">30</div><div class="s-l">28</div><div class="s-pct">.517</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">9</div><div class="s-team">POR</div><div class="s-w">28</div><div class="s-l">31</div><div class="s-pct">.475</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">10</div><div class="s-team">LAC</div><div class="s-w">27</div><div class="s-l">30</div><div class="s-pct">.474</div>
-        </div>
-        <div class="standings-row mavs-row">
-          <div class="s-rank" style="color:var(--accent);">11</div><div class="s-team mavs-team">DAL ◀</div><div class="s-w">21</div><div class="s-l">36</div><div class="s-pct">.368</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">12</div><div class="s-team">MEM</div><div class="s-w">21</div><div class="s-l">35</div><div class="s-pct">.375</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">13</div><div class="s-team">UTA</div><div class="s-w">18</div><div class="s-l">40</div><div class="s-pct">.310</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">14</div><div class="s-team">NOP</div><div class="s-w">17</div><div class="s-l">42</div><div class="s-pct">.288</div>
-        </div>
-        <div class="standings-row">
-          <div class="s-rank">15</div><div class="s-team">SAC</div><div class="s-w">13</div><div class="s-l">46</div><div class="s-pct">.220</div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- TEAMS -->
+  <div class="section-title" style="margin-top:36px;">// WAR ROOMS — SELECT YOUR TEAM</div>
+  <div id="teams-grid"><div class="loading-shimmer"></div></div>
 
   <footer>
-    <span>DATA: SPORTRADAR · LAST UPDATED FEB 25, 2026</span>
-    <span>MAVS WAR ROOM v1.0 · DALLAS, TX</span>
+    <span>DATA: ESPN · SPORTRADAR</span>
+    <span id="last-updated">—</span>
   </footer>
-
 </div>
 
 <script>
-// ── ROSTER powered by Claude AI (Anthropic API) ──
-async function fetchRosterAI() {
-  const rosterEl = document.getElementById('roster-grid');
-  const badge = document.getElementById('roster-badge');
-  badge.textContent = 'LOADING...';
-  badge.style.color = 'var(--accent)';
+const WORKER = 'https://falling-poetry-b927.humza-mir1234.workers.dev/?url=';
 
-  try {
-    const espnUrl = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/6/roster';
-    const proxyUrl = 'https://falling-poetry-b927.humza-mir1234.workers.dev/?url=' + encodeURIComponent(espnUrl);
+// All 30 NBA teams with colors and ESPN IDs
+const NBA_TEAMS = [
+  { id: '1',  abbr: 'ATL', name: 'Atlanta Hawks',           color: '#C8102E', espnId: 1  },
+  { id: '2',  abbr: 'BOS', name: 'Boston Celtics',          color: '#007A33', espnId: 2  },
+  { id: '17', abbr: 'BKN', name: 'Brooklyn Nets',           color: '#000000', espnId: 17 },
+  { id: '30', abbr: 'CHA', name: 'Charlotte Hornets',       color: '#1D1160', espnId: 30 },
+  { id: '4',  abbr: 'CHI', name: 'Chicago Bulls',           color: '#CE1141', espnId: 4  },
+  { id: '5',  abbr: 'CLE', name: 'Cleveland Cavaliers',     color: '#860038', espnId: 5  },
+  { id: '6',  abbr: 'DAL', name: 'Dallas Mavericks',        color: '#00538C', espnId: 6  },
+  { id: '7',  abbr: 'DEN', name: 'Denver Nuggets',          color: '#0E2240', espnId: 7  },
+  { id: '8',  abbr: 'DET', name: 'Detroit Pistons',         color: '#C8102E', espnId: 8  },
+  { id: '9',  abbr: 'GSW', name: 'Golden State Warriors',   color: '#1D428A', espnId: 9  },
+  { id: '10', abbr: 'HOU', name: 'Houston Rockets',         color: '#CE1141', espnId: 10 },
+  { id: '11', abbr: 'IND', name: 'Indiana Pacers',          color: '#002D62', espnId: 11 },
+  { id: '12', abbr: 'LAC', name: 'LA Clippers',             color: '#C8102E', espnId: 12 },
+  { id: '13', abbr: 'LAL', name: 'Los Angeles Lakers',      color: '#552583', espnId: 13 },
+  { id: '29', abbr: 'MEM', name: 'Memphis Grizzlies',       color: '#5D76A9', espnId: 29 },
+  { id: '14', abbr: 'MIA', name: 'Miami Heat',              color: '#98002E', espnId: 14 },
+  { id: '15', abbr: 'MIL', name: 'Milwaukee Bucks',         color: '#00471B', espnId: 15 },
+  { id: '16', abbr: 'MIN', name: 'Minnesota Timberwolves',  color: '#0C2340', espnId: 16 },
+  { id: '3',  abbr: 'NOP', name: 'New Orleans Pelicans',    color: '#0C2340', espnId: 3  },
+  { id: '18', abbr: 'NYK', name: 'New York Knicks',         color: '#006BB6', espnId: 18 },
+  { id: '25', abbr: 'OKC', name: 'OKC Thunder',             color: '#007AC1', espnId: 25 },
+  { id: '19', abbr: 'ORL', name: 'Orlando Magic',           color: '#0077C0', espnId: 19 },
+  { id: '20', abbr: 'PHI', name: 'Philadelphia 76ers',      color: '#006BB6', espnId: 20 },
+  { id: '21', abbr: 'PHX', name: 'Phoenix Suns',            color: '#1D1160', espnId: 21 },
+  { id: '22', abbr: 'POR', name: 'Portland Trail Blazers',  color: '#E03A3E', espnId: 22 },
+  { id: '26', abbr: 'SAC', name: 'Sacramento Kings',        color: '#5A2D81', espnId: 26 },
+  { id: '23', abbr: 'SAS', name: 'San Antonio Spurs',       color: '#C4CED4', espnId: 23 },
+  { id: '28', abbr: 'TOR', name: 'Toronto Raptors',         color: '#CE1141', espnId: 28 },
+  { id: '27', abbr: 'UTA', name: 'Utah Jazz',               color: '#002B5C', espnId: 27 },
+  { id: '24', abbr: 'WAS', name: 'Washington Wizards',      color: '#002B5C', espnId: 24 },
+];
 
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error('Worker returned ' + res.status);
-    const data = await res.json();
-
-    const players = [];
-    (data.athletes || []).forEach(group => {
-      (group.items || []).forEach(p => players.push(p));
-    });
-    if (!players.length) throw new Error('No players');
-
-    const injuries = {
-      'Cooper Flagg':     { status: 'out',          label: 'OUT (FOOT)' },
-      'Kyrie Irving':     { status: 'out',          label: 'OUT (KNEE)' },
-      'Dereck Lively II': { status: 'out',          label: 'OUT' },
-      'Daniel Gafford':   { status: 'questionable', label: 'QUESTIONABLE' },
-    };
-
-    rosterEl.innerHTML = '';
-    players.slice(0, 10).forEach(p => {
-      const name = p.fullName || '';
-      const num  = p.jersey || '—';
-      const pos  = p.position?.abbreviation || '—';
-      const stats = p.displayStats || [];
-      const ppg = stats.find(s => s.name === 'avgPoints')?.displayValue || '—';
-      const reb = stats.find(s => s.name === 'avgRebounds')?.displayValue || '—';
-      const ast = stats.find(s => s.name === 'avgAssists')?.displayValue || '—';
-      const inj = injuries[name] || { status: 'active', label: 'ACTIVE' };
-
-      rosterEl.innerHTML += `
-        <div class="player-row">
-          <div class="player-num">${num}</div>
-          <div class="player-info">
-            <div class="player-name">${name.toUpperCase()}</div>
-            <div class="player-pos">${pos}</div>
-          </div>
-          <div class="player-stats">
-            <div class="player-ppg">${ppg} PPG</div>
-            <div class="player-misc">${reb} REB · ${ast} AST</div>
-          </div>
-          <div class="status-badge ${inj.status}">${inj.label}</div>
-        </div>`;
-    });
-
-    badge.textContent = '✓ LIVE · ESPN';
-    badge.style.color = 'var(--win)';
-
-  } catch(e) {
-    console.error('Fetch failed:', e.message);
-    badge.textContent = 'OFFLINE';
-    badge.style.color = 'var(--accent2)';
-    renderFallbackRoster();
-  }
-}
-
-fetchRosterAI();
-
-function renderFallbackRoster() {
-  const players = [
-    { num: '32', name: 'COOPER FLAGG',     pos: 'F · DUKE',           ppg: '19.8', reb: '7.9', ast: '5.4', status: 'out',          label: 'OUT (FOOT)' },
-    { num: '13', name: 'NAJI MARSHALL',    pos: 'F · XAVIER',         ppg: '17.2', reb: '4.1', ast: '3.2', status: 'active',       label: 'ACTIVE' },
-    { num: '11', name: 'KYRIE IRVING',     pos: 'PG · DUKE',          ppg: '—',    reb: '—',   ast: '—',   status: 'out',          label: 'OUT (KNEE)' },
-    { num: '21', name: 'DANIEL GAFFORD',   pos: 'C · ARKANSAS',       ppg: '10.4', reb: '6.8', ast: '0.9', status: 'questionable', label: 'QUESTIONABLE' },
-    { num: '00', name: 'MAX CHRISTIE',     pos: 'G · MICHIGAN STATE', ppg: '12.1', reb: '3.0', ast: '1.8', status: 'active',       label: 'ACTIVE' },
-    { num: '16', name: 'CALEB MARTIN',     pos: 'F · NEVADA',         ppg: '8.3',  reb: '3.8', ast: '1.4', status: 'active',       label: 'ACTIVE' },
-    { num: '22', name: 'KHRIS MIDDLETON',  pos: 'F · TEXAS A&M',      ppg: '9.1',  reb: '3.2', ast: '2.8', status: 'active',       label: 'ACTIVE' },
-    { num: '2',  name: 'DERECK LIVELY II', pos: 'C · DUKE',           ppg: '7.2',  reb: '5.9', ast: '1.1', status: 'out',          label: 'OUT' },
-    { num: '9',  name: 'RYAN NEMBHARD',    pos: 'G · GONZAGA',        ppg: '6.4',  reb: '2.1', ast: '3.8', status: 'active',       label: 'ACTIVE' },
-    { num: '30', name: 'MOUSSA CISSE',     pos: 'C · MEMPHIS',        ppg: '4.2',  reb: '4.1', ast: '0.3', status: 'active',       label: 'ACTIVE' },
-  ];
-  const rosterEl = document.getElementById('roster-grid');
-  if (!rosterEl) return;
-  rosterEl.innerHTML = '';
-  players.forEach(p => {
-    rosterEl.innerHTML += `
-      <div class="player-row">
-        <div class="player-num">${p.num}</div>
-        <div class="player-info">
-          <div class="player-name">${p.name}</div>
-          <div class="player-pos">${p.pos}</div>
-        </div>
-        <div class="player-stats">
-          <div class="player-ppg">${p.ppg} PPG</div>
-          <div class="player-misc">${p.reb} REB · ${p.ast} AST</div>
-        </div>
-        <div class="status-badge ${p.status}">${p.label}</div>
-      </div>`;
-  });
-}
+// War room pages — only Mavs built so far, others show "coming soon"
+const WAR_ROOMS = {
+  'DAL': 'mavs-warroom/index.html',
+};
 
 // Clock
 function updateClock() {
   const now = new Date();
-  const cst = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-  const h = String(cst.getHours()).padStart(2,'0');
-  const m = String(cst.getMinutes()).padStart(2,'0');
-  const s = String(cst.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${h}:${m}:${s} CST`;
+  const est = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const h = String(est.getHours()).padStart(2,'0');
+  const m = String(est.getMinutes()).padStart(2,'0');
+  const s = String(est.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} EST`;
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Tipoff countdown — next game is Feb 26 at 7:30 PM CST
-function updateTipoff() {
-  const tipoff = new Date('2026-02-26T19:30:00-06:00');
-  const now = new Date();
-  const diff = tipoff - now;
-
-  if (diff <= 0) {
-    document.getElementById('tipoff-countdown').textContent = 'GAME TIME';
-    return;
-  }
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-  let str = '';
-  if (days > 0) str += `${days}D `;
-  str += `${String(hours).padStart(2,'0')}H ${String(mins).padStart(2,'0')}M ${String(secs).padStart(2,'0')}S`;
-  document.getElementById('tipoff-countdown').textContent = str;
+// Format tip time
+function formatTime(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) + ' ET';
 }
-setInterval(updateTipoff, 1000);
-updateTipoff();
+
+// Fetch live scoreboard
+async function fetchScores() {
+  const board = document.getElementById('scoreboard');
+  try {
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
+    const res = await fetch(WORKER + encodeURIComponent(url));
+    if (!res.ok) throw new Error('scores ' + res.status);
+    const data = await res.json();
+    const events = data.events || [];
+
+    document.getElementById('games-count').textContent = `${events.length} GAMES`;
+    document.getElementById('last-updated').textContent = 'UPDATED ' + new Date().toLocaleTimeString();
+
+    if (!events.length) {
+      board.innerHTML = '<div style="color:var(--dim); font-size:11px; letter-spacing:2px; padding:20px 0;">NO GAMES SCHEDULED TODAY</div>';
+      return;
+    }
+
+    board.innerHTML = '';
+    events.forEach((event, i) => {
+      const comp = event.competitions[0];
+      const status = comp.status.type;
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+      const isLive = status.state === 'in';
+      const isFinal = status.state === 'post';
+      const isUpcoming = status.state === 'pre';
+
+      const homeScore = parseInt(home.score || 0);
+      const awayScore = parseInt(away.score || 0);
+
+      let statusHTML = '';
+      if (isLive) {
+        statusHTML = `<div class="score-status live-status"><div class="status-pulse"></div>${comp.status.type.shortDetail || 'LIVE'}</div>`;
+      } else if (isFinal) {
+        statusHTML = `<div class="score-status final-status">FINAL</div>`;
+      } else {
+        statusHTML = `<div class="score-status upcoming-status">${formatTime(event.date)}</div>`;
+      }
+
+      const homeWin = isFinal && homeScore > awayScore;
+      const awayWin = isFinal && awayScore > homeScore;
+      const homeLeading = isLive && homeScore > awayScore;
+      const awayLeading = isLive && awayScore > homeScore;
+
+      const card = document.createElement('div');
+      card.className = `score-card ${isLive ? 'live' : isFinal ? 'final' : 'upcoming'}`;
+      card.style.animationDelay = (i * 0.04) + 's';
+
+      card.innerHTML = `
+        ${statusHTML}
+        <div class="matchup">
+          <div class="team-block">
+            <div class="team-abbr">${away.team.abbreviation}</div>
+            ${!isUpcoming ? `<div class="team-score ${awayWin || awayLeading ? 'winning' : isFinal || isLive ? 'losing' : ''}">${away.score || '—'}</div>` : ''}
+          </div>
+          <div class="score-divider">
+            ${isUpcoming ? `<div style="font-size:11px;color:var(--dim);">AT</div>` : 'VS'}
+          </div>
+          <div class="team-block">
+            <div class="team-abbr">${home.team.abbreviation}</div>
+            ${!isUpcoming ? `<div class="team-score ${homeWin || homeLeading ? 'winning' : isFinal || isLive ? 'losing' : ''}">${home.score || '—'}</div>` : ''}
+          </div>
+        </div>`;
+
+      board.appendChild(card);
+    });
+
+  } catch(e) {
+    console.error('Scores error:', e);
+    board.innerHTML = '<div style="color:var(--dim); font-size:11px; letter-spacing:2px; padding:20px 0;">SCORES UNAVAILABLE</div>';
+  }
+}
+
+// Fetch standings for team records
+async function fetchTeams() {
+  const grid = document.getElementById('teams-grid');
+  try {
+    const url = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/standings';
+    const res = await fetch(WORKER + encodeURIComponent(url));
+    let recordMap = {};
+
+    if (res.ok) {
+      const data = await res.json();
+      const children = data.children || [];
+      children.forEach(conf => {
+        (conf.standings?.entries || []).forEach(entry => {
+          const abbr = entry.team?.abbreviation;
+          const stats = entry.stats || [];
+          const w = stats.find(s => s.name === 'wins')?.value || 0;
+          const l = stats.find(s => s.name === 'losses')?.value || 0;
+          if (abbr) recordMap[abbr] = `${w}-${l}`;
+        });
+      });
+    }
+
+    grid.innerHTML = '';
+    NBA_TEAMS.forEach((team, i) => {
+      const hasWarRoom = !!WAR_ROOMS[team.abbr];
+      const href = hasWarRoom ? WAR_ROOMS[team.abbr] : '#';
+      const record = recordMap[team.abbr] || '—';
+
+      const card = document.createElement('a');
+      card.href = href;
+      card.className = 'team-card';
+      card.style.setProperty('--team-color', team.color);
+      card.style.animationDelay = (i * 0.02) + 's';
+      if (!hasWarRoom) card.style.cursor = 'default';
+
+      card.innerHTML = `
+        <div class="team-logo-placeholder" style="background:${team.color}22; color:${team.color};">
+          ${team.abbr}
+        </div>
+        <div class="team-info">
+          <div class="team-name">${team.name}</div>
+          <div class="team-record">${record} · ${hasWarRoom ? '<span style="color:var(--accent)">WAR ROOM ↗</span>' : '<span style="color:var(--dim)">COMING SOON</span>'}</div>
+        </div>
+        ${hasWarRoom ? '<div class="war-room-arrow">→</div>' : ''}
+      `;
+
+      if (!hasWarRoom) {
+        card.addEventListener('click', e => e.preventDefault());
+      }
+
+      grid.appendChild(card);
+    });
+
+  } catch(e) {
+    console.error('Teams error:', e);
+    // Fallback - show teams without records
+    grid.innerHTML = '';
+    NBA_TEAMS.forEach((team, i) => {
+      const hasWarRoom = !!WAR_ROOMS[team.abbr];
+      const card = document.createElement('a');
+      card.href = hasWarRoom ? WAR_ROOMS[team.abbr] : '#';
+      card.className = 'team-card';
+      card.style.setProperty('--team-color', team.color);
+      card.style.animationDelay = (i * 0.02) + 's';
+      card.innerHTML = `
+        <div class="team-logo-placeholder" style="background:${team.color}22; color:${team.color};">${team.abbr}</div>
+        <div class="team-info">
+          <div class="team-name">${team.name}</div>
+          <div class="team-record">${hasWarRoom ? '<span style="color:var(--accent)">WAR ROOM ↗</span>' : '<span style="color:var(--dim)">COMING SOON</span>'}</div>
+        </div>
+        ${hasWarRoom ? '<div class="war-room-arrow">→</div>' : ''}
+      `;
+      if (!hasWarRoom) card.addEventListener('click', e => e.preventDefault());
+      grid.appendChild(card);
+    });
+  }
+}
+
+// Load everything
+fetchScores();
+fetchTeams();
+
+// Refresh scores every 30 seconds
+setInterval(fetchScores, 30000);
+// Refresh teams every 5 minutes
+setInterval(fetchTeams, 300000);
 </script>
 </body>
 </html>
