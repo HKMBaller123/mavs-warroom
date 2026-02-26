@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAVS WAR ROOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #001529;
+  --blue: #00538C;
+  --silver: #B8C4CA;
+  --white: #FFFFFF;
+  --accent: #00A9E0;
+  --win: #00e676;
+  --loss: #ff1744;
+  --dim: rgba(184,196,202,0.4);
+  --card: rgba(0,21,41,0.85);
+  --border: rgba(0,169,224,0.18);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #000d1a;
+  font-family: 'DM Mono', monospace;
+  color: var(--silver);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,83,140,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,83,140,0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(0,83,140,0.25) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.container { position:relative; z-index:1; max-width:1300px; margin:0 auto; padding:24px 20px; }
+
+/* HEADER */
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:28px; padding-bottom:20px; border-bottom:1px solid var(--border);
+}
+.header-left { display:flex; align-items:center; gap:18px; }
+.mavs-logo {
+  width:56px; height:56px;
+  background:linear-gradient(135deg, var(--blue), var(--accent));
+  border-radius:12px; display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:22px; color:white; letter-spacing:1px;
+  box-shadow:0 0 24px rgba(0,169,224,0.4);
+}
+.header-title h1 { font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:4px; color:var(--white); line-height:1; }
+.header-title p { font-size:10px; letter-spacing:3px; color:var(--accent); margin-top:2px; }
+.header-right { text-align:right; }
+.live-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,23,68,0.15); border:1px solid rgba(255,23,68,0.3);
+  border-radius:20px; padding:4px 12px; font-size:10px; letter-spacing:2px; color:var(--loss); margin-bottom:6px;
+}
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--loss); animation:blink 1s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+#clock { font-size:13px; color:var(--dim); letter-spacing:2px; }
+.back-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  color:var(--accent); font-size:10px; letter-spacing:2px; text-decoration:none;
+  border:1px solid var(--border); padding:6px 12px; border-radius:4px;
+  transition:all 0.2s; margin-bottom:8px;
+}
+.back-btn:hover { background:rgba(0,169,224,0.1); }
+
+/* RECORD BAR */
+.record-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }
+.stat-pill {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:16px; text-align:center; position:relative; overflow:hidden;
+  backdrop-filter:blur(12px); transition:transform 0.2s;
+}
+.stat-pill:hover { transform:translateY(-2px); }
+.stat-pill::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--blue), var(--accent)); }
+.stat-pill-val { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--white); line-height:1; }
+.stat-pill-val.green { color:var(--win); }
+.stat-pill-val.red { color:var(--loss); }
+.stat-pill-val.blue { color:var(--accent); }
+.stat-pill-label { font-size:9px; letter-spacing:3px; color:var(--dim); margin-top:4px; text-transform:uppercase; }
+
+/* LIVE GAME BANNER */
+#live-banner {
+  display:none; margin-bottom:20px; padding:16px 20px;
+  background:rgba(255,23,68,0.08); border:1px solid rgba(255,23,68,0.3);
+  border-radius:8px; position:relative; overflow:hidden;
+}
+#live-banner::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--loss), transparent); }
+.live-banner-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.live-banner-scores { display:flex; align-items:center; justify-content:center; gap:32px; }
+.live-team { text-align:center; }
+.live-team-abbr { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; color:var(--dim); }
+.live-team-score { font-family:'Bebas Neue',sans-serif; font-size:52px; color:var(--white); line-height:1; }
+.live-team-score.mavs { color:var(--accent); text-shadow:0 0 20px rgba(0,169,224,0.4); }
+.live-vs { font-family:'Bebas Neue',sans-serif; font-size:18px; color:var(--dim); }
+
+/* CARD */
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:10px;
+  padding:20px; backdrop-filter:blur(12px); position:relative; overflow:hidden;
+}
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg, var(--accent), transparent); }
+.card-title {
+  font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:3px;
+  color:var(--accent); margin-bottom:16px; display:flex; align-items:center; gap:8px;
+}
+.card-title span { width:3px; height:16px; background:var(--accent); border-radius:2px; display:inline-block; }
+
+/* GRIDS */
+.main-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.bottom-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.full-width { grid-column:1/-1; }
+
+/* RESULTS */
+.result-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-radius:6px; background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.04); transition:background 0.2s; font-size:12px; margin-bottom:6px;
+}
+.result-row:hover { background:rgba(0,169,224,0.06); }
+.result-outcome { font-family:'Bebas Neue',sans-serif; font-size:18px; width:24px; }
+.result-outcome.W { color:var(--win); }
+.result-outcome.L { color:var(--loss); }
+.result-opponent { color:var(--silver); flex:1; margin-left:12px; letter-spacing:1px; }
+.result-score { font-weight:500; letter-spacing:1px; color:var(--white); }
+.result-date { font-size:10px; color:var(--dim); letter-spacing:1px; }
+
+/* UPCOMING */
+.upcoming-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; border-radius:6px; background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.04); font-size:12px; margin-bottom:6px; transition:background 0.2s;
+}
+.upcoming-row:hover { background:rgba(0,169,224,0.06); }
+.upcoming-row.next { border-color:rgba(0,169,224,0.3); background:rgba(0,169,224,0.05); }
+.upcoming-ha { font-size:9px; letter-spacing:1px; padding:2px 6px; border-radius:3px; margin-left:6px; }
+.upcoming-ha.home { background:rgba(0,169,224,0.15); color:var(--accent); }
+.upcoming-ha.away { background:rgba(184,196,202,0.08); color:var(--dim); }
+
+/* NEXT GAME */
+.matchup-display { display:flex; align-items:center; justify-content:center; gap:32px; padding:20px 0; }
+.team-side { text-align:center; flex:1; }
+.team-abbr-big { font-family:'Bebas Neue',sans-serif; font-size:52px; letter-spacing:4px; color:var(--white); line-height:1; }
+.team-abbr-big.mavs { color:var(--accent); text-shadow:0 0 30px rgba(0,169,224,0.5); }
+.team-rec { font-size:11px; color:var(--dim); letter-spacing:2px; margin-top:4px; }
+.vs-divider { text-align:center; }
+.vs-text { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--dim); letter-spacing:3px; }
+.game-meta { font-size:10px; letter-spacing:2px; color:var(--accent); margin-top:4px; }
+.countdown-bar {
+  margin-top:16px; padding:12px 16px; background:rgba(0,169,224,0.06);
+  border:1px solid rgba(0,169,224,0.12); border-radius:6px;
+  display:flex; justify-content:space-between; align-items:center; font-size:11px; letter-spacing:2px;
+}
+.countdown-label { color:var(--dim); }
+.countdown-val { color:var(--accent); font-weight:500; }
+
+/* INJURY REPORT */
+.injury-bar {
+  margin-bottom:12px; padding:10px 14px;
+  background:rgba(255,23,68,0.05); border:1px solid rgba(255,23,68,0.15);
+  border-radius:6px; font-size:10px; letter-spacing:1px;
+}
+
+/* ROSTER */
+.player-row {
+  display:flex; align-items:center; gap:12px; padding:10px 12px;
+  border-radius:6px; background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.04); transition:all 0.2s; margin-bottom:6px;
+}
+.player-row:hover { background:rgba(0,169,224,0.06); }
+.player-num { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--blue); width:28px; text-align:center; }
+.player-info { flex:1; }
+.player-name { font-size:12px; color:var(--white); letter-spacing:1px; font-weight:500; }
+.player-pos { font-size:9px; color:var(--dim); letter-spacing:2px; margin-top:2px; }
+.player-stats { text-align:right; font-size:11px; }
+.player-ppg { color:var(--white); font-weight:500; }
+.player-misc { color:var(--dim); font-size:9px; letter-spacing:1px; margin-top:2px; }
+.status-badge { padding:3px 8px; border-radius:3px; font-size:8px; letter-spacing:2px; font-weight:500; }
+.status-badge.active { background:rgba(0,230,118,0.12); color:var(--win); border:1px solid rgba(0,230,118,0.2); }
+.status-badge.questionable { background:rgba(255,193,7,0.12); color:#ffc107; border:1px solid rgba(255,193,7,0.2); }
+.status-badge.out { background:rgba(255,23,68,0.12); color:var(--loss); border:1px solid rgba(255,23,68,0.2); }
+
+/* STANDINGS */
+.standings-row {
+  display:grid; grid-template-columns:24px 1fr 36px 36px 50px;
+  gap:8px; align-items:center; padding:7px 10px;
+  border-radius:4px; font-size:11px; letter-spacing:1px; transition:background 0.15s;
+}
+.standings-row:hover { background:rgba(0,169,224,0.06); }
+.standings-row.mavs-row { background:rgba(0,169,224,0.1); border:1px solid rgba(0,169,224,0.25); border-radius:6px; }
+.standings-row.header { font-size:9px; color:var(--dim); letter-spacing:2px; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:4px; }
+.s-rank { color:var(--dim); text-align:center; }
+.s-team { color:var(--silver); }
+.s-team.mavs-team { color:var(--accent); font-weight:500; }
+.s-w { color:var(--win); text-align:center; }
+.s-l { color:var(--loss); text-align:center; }
+.s-pct { color:var(--dim); text-align:right; }
+
+/* STREAK */
+.streak-dots { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.streak-dot {
+  width:28px; height:28px; border-radius:4px; display:flex; align-items:center;
+  justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:14px; transition:transform 0.15s;
+}
+.streak-dot:hover { transform:scale(1.15); }
+.streak-dot.W { background:rgba(0,230,118,0.15); color:var(--win); border:1px solid rgba(0,230,118,0.3); }
+.streak-dot.L { background:rgba(255,23,68,0.1); color:var(--loss); border:1px solid rgba(255,23,68,0.2); }
+
+/* LOADING */
+.loading-shimmer {
+  background:linear-gradient(90deg, rgba(0,169,224,0.03) 25%, rgba(0,169,224,0.08) 50%, rgba(0,169,224,0.03) 75%);
+  background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:48px; margin-bottom:6px;
+}
+@keyframes shimmer { to { background-position:-200% 0; } }
+
+footer {
+  margin-top:24px; padding-top:16px; border-top:1px solid var(--border);
+  display:flex; justify-content:space-between; font-size:9px; letter-spacing:2px; color:var(--dim);
+}
+
+@media(max-width:900px) { .main-grid,.bottom-grid { grid-template-columns:1fr; } .record-bar { grid-template-columns:repeat(3,1fr); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-left">
+      <div class="mavs-logo">DAL</div>
+      <div class="header-title">
+        <a href="../index.html" class="back-btn">← HOME</a>
+        <h1>MAVS WAR ROOM</h1>
+        <p>DALLAS MAVERICKS · LIVE INTELLIGENCE DASHBOARD</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>ALL DATA LIVE</div>
+      <div id="clock">--:--:-- CST</div>
+    </div>
+  </header>
+
+  <!-- RECORD BAR -->
+  <div class="record-bar">
+    <div class="stat-pill"><div class="stat-pill-val" id="stat-wins">—</div><div class="stat-pill-label">Wins</div></div>
+    <div class="stat-pill"><div class="stat-pill-val red" id="stat-losses">—</div><div class="stat-pill-label">Losses</div></div>
+    <div class="stat-pill"><div class="stat-pill-val blue" id="stat-pct">—</div><div class="stat-pill-label">Win %</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="stat-rank">—</div><div class="stat-pill-label">West Rank</div></div>
+    <div class="stat-pill"><div class="stat-pill-val" id="stat-streak">—</div><div class="stat-pill-label">Streak</div></div>
+  </div>
+
+  <!-- LIVE GAME BANNER -->
+  <div id="live-banner">
+    <div class="live-banner-top">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="live-dot"></div>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--loss);">GAME IN PROGRESS</span>
+      </div>
+      <div id="live-detail" style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--dim);letter-spacing:2px;"></div>
+    </div>
+    <div class="live-banner-scores">
+      <div class="live-team">
+        <div class="live-team-abbr" id="live-away-abbr">AWAY</div>
+        <div class="live-team-score" id="live-away-score">0</div>
+      </div>
+      <div class="live-vs">VS</div>
+      <div class="live-team">
+        <div class="live-team-abbr" id="live-home-abbr">HOME</div>
+        <div class="live-team-score" id="live-home-score">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEXT GAME + RECENT -->
+  <div class="main-grid">
+    <div class="card" id="next-game-card">
+      <div class="card-title"><span></span>NEXT GAME</div>
+      <div id="next-game-content"><div class="loading-shimmer"></div><div class="loading-shimmer"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span></span>RECENT RESULTS</div>
+      <div id="streak-dots" class="streak-dots"></div>
+      <div id="results-list"><div class="loading-shimmer"></div><div class="loading-shimmer"></div><div class="loading-shimmer"></div></div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE + STANDINGS -->
+  <div class="main-grid" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-title"><span></span>UPCOMING SCHEDULE</div>
+      <div id="schedule-list"><div class="loading-shimmer"></div><div class="loading-shimmer"></div><div class="loading-shimmer"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span></span>WESTERN CONFERENCE</div>
+      <div id="standings-list"><div class="loading-shimmer"></div></div>
+    </div>
+  </div>
+
+  <!-- ROSTER -->
+  <div class="card">
+    <div class="card-title"><span></span>ROSTER & STATS <span id="roster-badge" style="font-size:9px;color:var(--dim);letter-spacing:2px;font-family:'DM Mono',monospace;">LOADING...</span></div>
+    <div id="injury-bar" class="injury-bar" style="display:none;"></div>
+    <div id="roster-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;"></div>
+  </div>
+
+  <footer>
+    <span>DATA: ESPN · LIVE API · <span id="last-updated">—</span></span>
+    <span>MAVS WAR ROOM · DALLAS, TX</span>
+  </footer>
+</div>
+
+<script>
+const WORKER = 'https://falling-poetry-b927.humza-mir1234.workers.dev/?url=';
+const MAVS_ESPN_ID = '6';
+const MAVS_ABBR = 'DAL';
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  const cst = new Date(now.toLocaleString('en-US', { timeZone: 'America/Chicago' }));
+  const h = String(cst.getHours()).padStart(2,'0');
+  const m = String(cst.getMinutes()).padStart(2,'0');
+  const s = String(cst.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} CST`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+async function espnFetch(url) {
+  const res = await fetch(WORKER + encodeURIComponent(url));
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function formatDate(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', timeZone:'America/Chicago' }).toUpperCase();
+}
+
+function formatTime(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', timeZone:'America/Chicago' }) + ' CST';
+}
+
+// ── TEAM INFO + RECORD ──
+async function fetchTeamInfo() {
+  try {
+    const data = await espnFetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${MAVS_ESPN_ID}`);
+    const team = data.team;
+
+    // Try multiple record paths ESPN uses
+    const record = team.record?.items?.[0] || team.record?.items?.find(r => r.type === 'total');
+    const stats = record?.stats || [];
+
+    // Also try pulling from standings
+    let wins = stats.find(s => s.name === 'wins')?.value;
+    let losses = stats.find(s => s.name === 'losses')?.value;
+    let pct = stats.find(s => s.name === 'winPercent')?.value;
+    let streak = stats.find(s => s.name === 'streak')?.displayValue || stats.find(s => s.name === 'streakLength')?.displayValue;
+
+    // Fallback: parse from record summary string like "21-36"
+    if ((wins === undefined || wins === null) && record?.summary) {
+      const parts = record.summary.split('-');
+      wins = parseInt(parts[0]);
+      losses = parseInt(parts[1]);
+    }
+
+    if (wins !== undefined) document.getElementById('stat-wins').textContent = wins;
+    if (losses !== undefined) document.getElementById('stat-losses').textContent = losses;
+    if (pct !== undefined) {
+      document.getElementById('stat-pct').textContent = '.' + Math.round(pct * 1000).toString().padStart(3,'0');
+    } else if (wins && losses) {
+      const p = wins / (wins + losses);
+      document.getElementById('stat-pct').textContent = '.' + Math.round(p * 1000).toString().padStart(3,'0');
+    }
+
+    if (streak) {
+      const streakEl = document.getElementById('stat-streak');
+      streakEl.textContent = streak;
+      if (streak.toString().startsWith('W') || Number(streak) > 0) streakEl.className = 'stat-pill-val green';
+      else streakEl.className = 'stat-pill-val red';
+    }
+
+  } catch(e) { console.warn('Team info error:', e.message); }
+}
+
+// Calculate streak from recent results and update stat bar
+function updateStreakFromResults(completed) {
+  if (!completed.length) return;
+  const last = completed[completed.length - 1];
+  const comp = last.competitions[0];
+  const mavs = comp.competitors.find(c => c.team.abbreviation === MAVS_ABBR);
+  if (!mavs) return;
+
+  // Count streak
+  let count = 0;
+  const lastWon = mavs.winner;
+  for (let i = completed.length - 1; i >= 0; i--) {
+    const c = completed[i].competitions[0];
+    const m = c.competitors.find(x => x.team.abbreviation === MAVS_ABBR);
+    if (!m) break;
+    if (m.winner === lastWon) count++;
+    else break;
+  }
+  const streakEl = document.getElementById('stat-streak');
+  const label = (lastWon ? 'W' : 'L') + count;
+  streakEl.textContent = label;
+  streakEl.className = 'stat-pill-val ' + (lastWon ? 'green' : 'red');
+}
+
+// ── SCHEDULE (recent + upcoming) ──
+async function fetchSchedule() {
+  try {
+    const data = await espnFetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${MAVS_ESPN_ID}/schedule`);
+    const events = data.events || [];
+
+    const completed = events.filter(e => e.competitions[0].status.type.state === 'post').slice(-8);
+    const upcoming  = events.filter(e => e.competitions[0].status.type.state === 'pre').slice(0, 6);
+    const live      = events.find(e => e.competitions[0].status.type.state === 'in');
+
+    // LIVE GAME
+    if (live) {
+      const comp = live.competitions[0];
+      const home = comp.competitors.find(c => c.homeAway === 'home');
+      const away = comp.competitors.find(c => c.homeAway === 'away');
+      const mavs = comp.competitors.find(c => c.team.abbreviation === MAVS_ABBR);
+      const opp  = comp.competitors.find(c => c.team.abbreviation !== MAVS_ABBR);
+      const mavsIsHome = mavs.homeAway === 'home';
+
+      document.getElementById('live-banner').style.display = 'block';
+      document.getElementById('live-away-abbr').textContent = away.team.abbreviation;
+      document.getElementById('live-home-abbr').textContent = home.team.abbreviation;
+      document.getElementById('live-away-score').textContent = away.score || '0';
+      document.getElementById('live-home-score').textContent = home.score || '0';
+      document.getElementById('live-detail').textContent = comp.status.type.shortDetail || '';
+
+      // Highlight Mavs score
+      const mavsScoreId = mavsIsHome ? 'live-home-score' : 'live-away-score';
+      document.getElementById(mavsScoreId).className = 'live-team-score mavs';
+    } else {
+      document.getElementById('live-banner').style.display = 'none';
+    }
+
+    // Update streak from results
+    updateStreakFromResults(completed);
+
+    // RECENT RESULTS
+    const streakDots = document.getElementById('streak-dots');
+    const resultsList = document.getElementById('results-list');
+    streakDots.innerHTML = '';
+    resultsList.innerHTML = '';
+
+    completed.slice(-10).forEach(e => {
+      const comp = e.competitions[0];
+      const mavs = comp.competitors.find(c => c.team.abbreviation === MAVS_ABBR);
+      const opp  = comp.competitors.find(c => c.team.abbreviation !== MAVS_ABBR);
+      if (!mavs || !opp) return;
+      const won = mavs.winner;
+      const wl = won ? 'W' : 'L';
+      const dot = document.createElement('div');
+      dot.className = `streak-dot ${wl}`;
+      dot.textContent = wl;
+      streakDots.appendChild(dot);
+
+      const isHome = mavs.homeAway === 'home';
+      resultsList.innerHTML += `
+        <div class="result-row">
+          <div class="result-outcome ${wl}">${wl}</div>
+          <div class="result-opponent">${isHome ? 'vs' : '@'} ${opp.team.abbreviation} <span style="font-size:9px;color:var(--dim);">${isHome ? 'HOME' : 'AWAY'}</span></div>
+          <div class="result-score">${typeof mavs.score === 'object' ? (mavs.score?.displayValue || mavs.score?.value || '—') : (mavs.score || '—')}–${typeof opp.score === 'object' ? (opp.score?.displayValue || opp.score?.value || '—') : (opp.score || '—')}</div>
+          <div class="result-date">${formatDate(e.date)}</div>
+        </div>`;
+    });
+
+    // UPCOMING SCHEDULE
+    const scheduleList = document.getElementById('schedule-list');
+    scheduleList.innerHTML = '';
+    upcoming.forEach((e, i) => {
+      const comp = e.competitions[0];
+      const mavs = comp.competitors.find(c => c.team.abbreviation === MAVS_ABBR);
+      const opp  = comp.competitors.find(c => c.team.abbreviation !== MAVS_ABBR);
+      if (!mavs || !opp) return;
+      const isHome = mavs.homeAway === 'home';
+      const oppRec = opp.records?.[0]?.summary || '';
+      scheduleList.innerHTML += `
+        <div class="upcoming-row ${i === 0 ? 'next' : ''}">
+          <div style="flex:1;color:var(--silver);letter-spacing:1px;font-size:12px;">
+            ${opp.team.displayName}
+            <span class="upcoming-ha ${isHome ? 'home' : 'away'}">${isHome ? 'HOME' : 'AWAY'}</span>
+            ${oppRec ? `<span style="font-size:9px;color:var(--dim);margin-left:4px;">${oppRec}</span>` : ''}
+          </div>
+          <div style="font-size:10px;color:var(--dim);letter-spacing:1px;text-align:right;">
+            ${formatDate(e.date)}<br><span style="color:var(--accent)">${formatTime(e.date)}</span>
+          </div>
+        </div>`;
+    });
+
+    // NEXT GAME card
+    if (upcoming.length > 0) {
+      const next = upcoming[0];
+      const comp = next.competitions[0];
+      const mavs = comp.competitors.find(c => c.team.abbreviation === MAVS_ABBR);
+      const opp  = comp.competitors.find(c => c.team.abbreviation !== MAVS_ABBR);
+      const isHome = mavs?.homeAway === 'home';
+      const mavsRec = mavs?.records?.[0]?.summary || '';
+      const oppRec  = opp?.records?.[0]?.summary || '';
+
+      // Countdown
+      const tipoff = new Date(next.date);
+      function getCountdown() {
+        const diff = tipoff - new Date();
+        if (diff <= 0) return 'TIPOFF';
+        const days  = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins  = Math.floor((diff % 3600000) / 60000);
+        const secs  = Math.floor((diff % 60000) / 1000);
+        let s = '';
+        if (days > 0) s += `${days}D `;
+        s += `${String(hours).padStart(2,'0')}H ${String(mins).padStart(2,'0')}M ${String(secs).padStart(2,'0')}S`;
+        return s;
+      }
+
+      document.getElementById('next-game-content').innerHTML = `
+        <div class="matchup-display">
+          <div class="team-side">
+            <div class="team-abbr-big ${isHome ? 'mavs' : ''}">${isHome ? 'DAL' : opp.team.abbreviation}</div>
+            <div class="team-rec">${isHome ? mavsRec + ' · HOME' : oppRec + ' · AWAY'}</div>
+          </div>
+          <div class="vs-divider">
+            <div class="vs-text">VS</div>
+            <div class="game-meta">${formatDate(next.date)} · ${formatTime(next.date)}</div>
+            <div class="game-meta" style="color:var(--dim);margin-top:4px;">${comp.venue?.fullName || ''}</div>
+          </div>
+          <div class="team-side">
+            <div class="team-abbr-big ${!isHome ? 'mavs' : ''}">${!isHome ? 'DAL' : opp.team.abbreviation}</div>
+            <div class="team-rec">${!isHome ? mavsRec + ' · AWAY' : oppRec + ' · HOME'}</div>
+          </div>
+        </div>
+        <div class="countdown-bar">
+          <span class="countdown-label">TIPOFF IN</span>
+          <span class="countdown-val" id="tipoff-countdown">${getCountdown()}</span>
+          <span class="countdown-label">BROADCAST</span>
+          <span class="countdown-val">NBA TV</span>
+        </div>`;
+
+      // Live countdown
+      if (window._countdownInterval) clearInterval(window._countdownInterval);
+      window._countdownInterval = setInterval(() => {
+        const el = document.getElementById('tipoff-countdown');
+        if (el) el.textContent = getCountdown();
+      }, 1000);
+    }
+
+    document.getElementById('last-updated').textContent = 'UPDATED ' + new Date().toLocaleTimeString();
+
+  } catch(e) { console.warn('Schedule error:', e.message); }
+}
+
+// ── STANDINGS ──
+async function fetchStandings() {
+  try {
+    const data = await espnFetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/standings');
+
+    // ESPN standings structure varies - try multiple paths
+    console.log('Standings data keys:', Object.keys(data));
+    let westEntries = [];
+
+    // Path 1: data.children[].standings.entries (conference grouped)
+    const children = data.children || [];
+    for (const child of children) {
+      const name = (child.name || child.abbreviation || '').toLowerCase();
+      if (name.includes('west')) {
+        westEntries = child.standings?.entries || child.entries || [];
+        break;
+      }
+    }
+
+    // Path 2: data.seasons[0].types[0].groups[] 
+    if (!westEntries.length) {
+      const seasons = data.seasons || [];
+      for (const season of seasons) {
+        for (const type of (season.types || [])) {
+          for (const group of (type.groups || [])) {
+            const name = (group.name || '').toLowerCase();
+            if (name.includes('west')) {
+              westEntries = group.standings?.entries || group.entries || [];
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Path 3: flat entries
+    if (!westEntries.length && data.standings?.entries) {
+      westEntries = data.standings.entries;
+    }
+
+    // Path 4: just grab the bigger group
+    if (!westEntries.length) {
+      let biggest = [];
+      children.forEach(c => {
+        const e = c.standings?.entries || c.entries || [];
+        if (e.length > biggest.length) biggest = e;
+      });
+      westEntries = biggest;
+    }
+
+    console.log('West entries found:', westEntries.length);
+    if (!westEntries.length) throw new Error('No standings entries found');
+
+    // Parse each entry - ESPN uses stats array with name/value pairs
+    const parsed = westEntries.map(entry => {
+      const team = entry.team || {};
+      const stats = entry.stats || [];
+      const getStat = (names) => {
+        for (const name of names) {
+          const s = stats.find(s => s.name === name || s.shortDisplayName === name);
+          if (s) return parseFloat(s.value || s.displayValue) || 0;
+        }
+        return 0;
+      };
+      const w = getStat(['wins', 'W', 'w']);
+      const l = getStat(['losses', 'L', 'l']);
+      // Also try parsing from record summary
+      let wins = w, losses = l;
+      if (!wins && !losses && entry.record) {
+        const parts = (entry.record.summary || entry.record || '').split('-');
+        wins = parseInt(parts[0]) || 0;
+        losses = parseInt(parts[1]) || 0;
+      }
+      return { abbr: team.abbreviation || '', wins, losses, entry };
+    }).filter(e => e.abbr);
+
+    // Sort by win pct
+    parsed.sort((a, b) => {
+      const ap = a.wins + a.losses > 0 ? a.wins / (a.wins + a.losses) : 0;
+      const bp = b.wins + b.losses > 0 ? b.wins / (b.wins + b.losses) : 0;
+      return bp - ap;
+    });
+
+    let mavsRank = '—';
+    const html = parsed.map((t, i) => {
+      const pct = (t.wins + t.losses) > 0
+        ? (t.wins / (t.wins + t.losses)).toFixed(3).replace('0.', '.')
+        : '.000';
+      const isMavs = t.abbr === MAVS_ABBR;
+      if (isMavs) mavsRank = i + 1;
+      return `<div class="standings-row ${isMavs ? 'mavs-row' : ''}">
+        <div class="s-rank">${i+1}</div>
+        <div class="s-team ${isMavs ? 'mavs-team' : ''}">${t.abbr}${isMavs ? ' ◀' : ''}</div>
+        <div class="s-w">${t.wins}</div>
+        <div class="s-l">${t.losses}</div>
+        <div class="s-pct">${pct}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('standings-list').innerHTML = `
+      <div class="standings-row header">
+        <div class="s-rank">#</div><div class="s-team">TEAM</div>
+        <div class="s-w">W</div><div class="s-l">L</div><div class="s-pct">PCT</div>
+      </div>${html}`;
+
+    if (mavsRank !== '—') {
+      const suffix = mavsRank === 1 ? 'ST' : mavsRank === 2 ? 'ND' : mavsRank === 3 ? 'RD' : 'TH';
+      document.getElementById('stat-rank').textContent = mavsRank + suffix;
+    }
+
+  } catch(e) {
+    console.warn('Standings error:', e.message);
+    // Hardcoded fallback standings
+    const fallback = [
+      {abbr:'OKC',w:45,l:14},{abbr:'SAS',w:41,l:16},{abbr:'DEN',w:36,l:22},
+      {abbr:'MIN',w:36,l:23},{abbr:'HOU',w:35,l:21},{abbr:'LAL',w:34,l:23},
+      {abbr:'PHX',w:33,l:26},{abbr:'GSW',w:30,l:28},{abbr:'POR',w:28,l:31},
+      {abbr:'LAC',w:27,l:30},{abbr:'DAL',w:21,l:36},{abbr:'MEM',w:21,l:35},
+      {abbr:'UTA',w:18,l:40},{abbr:'NOP',w:17,l:42},{abbr:'SAC',w:13,l:46},
+    ];
+    const html = fallback.map((t, i) => {
+      const pct = (t.w / (t.w + t.l)).toFixed(3).replace('0.', '.');
+      const isMavs = t.abbr === MAVS_ABBR;
+      return `<div class="standings-row ${isMavs ? 'mavs-row' : ''}">
+        <div class="s-rank">${i+1}</div>
+        <div class="s-team ${isMavs ? 'mavs-team' : ''}">${t.abbr}${isMavs ? ' ◀' : ''}</div>
+        <div class="s-w">${t.w}</div><div class="s-l">${t.l}</div>
+        <div class="s-pct">${pct}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('standings-list').innerHTML = `
+      <div class="standings-row header">
+        <div class="s-rank">#</div><div class="s-team">TEAM</div>
+        <div class="s-w">W</div><div class="s-l">L</div><div class="s-pct">PCT</div>
+      </div>${html}`;
+    document.getElementById('stat-rank').textContent = '11TH';
+  }
+}
+
+// ── ROSTER + INJURIES + STATS ──
+async function fetchRoster() {
+  const badge = document.getElementById('roster-badge');
+  try {
+    const [rosterData, statsData, injuryData] = await Promise.all([
+      espnFetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${MAVS_ESPN_ID}/roster`),
+      espnFetch(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?region=us&lang=en&contentorigin=espn&isqualified=false&limit=100&teamid=${MAVS_ESPN_ID}&season=2026&seasontype=2`).catch(() => null),
+      espnFetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries`).catch(() => null),
+    ]);
+
+    // Build stats map from athlete ID
+    const statsMap = {};
+    if (statsData) {
+      const athletes = statsData.athletes || statsData.items || [];
+      console.log('Stats athletes count:', athletes.length);
+      if (athletes.length > 0) console.log('First athlete sample:', JSON.stringify(athletes[0]).substring(0, 300));
+      athletes.forEach(a => {
+        const id = a.athlete?.id || a.id;
+        if (!id) return;
+        let ppg = '—', reb = '—', ast = '—';
+        const cats = a.categories || a.stats || [];
+        cats.forEach(cat => {
+          const catName = (cat.name || '').toLowerCase();
+          const names = cat.names || [];
+          const values = cat.values || [];
+          names.forEach((n, i) => {
+            // values[i] might be a number or an object with displayValue
+            const raw = values[i];
+            const v = typeof raw === 'object' ? parseFloat(raw?.displayValue || raw?.value || 0) : parseFloat(raw);
+            if (['avgPoints','ppg','avgpoints'].includes(n.toLowerCase()))     ppg = isNaN(v) ? '—' : v.toFixed(1);
+            if (['avgRebounds','rpg','avgrebounds'].includes(n.toLowerCase())) reb = isNaN(v) ? '—' : v.toFixed(1);
+            if (['avgAssists','apg','avgassists'].includes(n.toLowerCase()))   ast = isNaN(v) ? '—' : v.toFixed(1);
+          });
+          // Fallback: stats array inside category
+          (cat.stats || []).forEach(s => {
+            const sName = (s.name || s.shortDisplayName || '').toLowerCase();
+            const v = parseFloat(s.displayValue || s.value || 0);
+            if (sName.includes('point') && sName.includes('avg')) ppg = isNaN(v) ? '—' : v.toFixed(1);
+            if (sName.includes('rebound') && sName.includes('avg')) reb = isNaN(v) ? '—' : v.toFixed(1);
+            if (sName.includes('assist') && sName.includes('avg')) ast = isNaN(v) ? '—' : v.toFixed(1);
+          });
+        });
+        statsMap[id] = { ppg, reb, ast };
+      });
+    }
+    console.log('Stats map size:', Object.keys(statsMap).length);
+
+    // Build injury map - keyed by both ID and name for flexible matching
+    const injuryMap = {};
+    const injuryMapByName = {};
+    if (injuryData) {
+      const allInjuries = injuryData.injuries || [];
+      console.log('Injury data structure:', JSON.stringify(allInjuries).substring(0, 400));
+      allInjuries.forEach(teamInj => {
+        const isMAVS = teamInj.team?.abbreviation === MAVS_ABBR || String(teamInj.team?.id) === MAVS_ESPN_ID;
+        if (isMAVS) {
+          (teamInj.injuries || []).forEach(inj => {
+            const id = inj.athlete?.id;
+            const name = (inj.athlete?.fullName || inj.athlete?.displayName || '').toLowerCase();
+            const entry = { status: (inj.status || 'out').toLowerCase(), detail: inj.shortComment || inj.type?.text || inj.status || '' };
+            if (id) injuryMap[id] = entry;
+            if (name) injuryMapByName[name] = entry;
+          });
+        }
+      });
+      // Fallback: flat array
+      if (!Object.keys(injuryMap).length && !Object.keys(injuryMapByName).length) {
+        allInjuries.forEach(inj => {
+          if (!inj.injuries) {
+            const id = inj.athlete?.id;
+            const name = (inj.athlete?.fullName || '').toLowerCase();
+            const entry = { status: (inj.status || 'out').toLowerCase(), detail: inj.shortComment || inj.status || '' };
+            if (id) injuryMap[id] = entry;
+            if (name) injuryMapByName[name] = entry;
+          }
+        });
+      }
+    }
+    console.log('Injury map:', Object.keys(injuryMap).length, 'by ID,', Object.keys(injuryMapByName).length, 'by name');
+
+    // Get players - ESPN wraps in position groups
+    const players = [];
+    if (Array.isArray(rosterData.athletes)) {
+      rosterData.athletes.forEach(group => {
+        // Could be direct array or grouped by position
+        if (group.items) {
+          group.items.forEach(p => players.push(p));
+        } else if (group.id) {
+          players.push(group); // direct player object
+        }
+      });
+    }
+    if (!players.length) throw new Error('No players');
+    console.log('Players found:', players.length, players[0]?.fullName);
+    console.log('Stats map size:', Object.keys(statsMap).length);
+    if (Object.keys(statsMap).length > 0) console.log('Sample stat:', Object.values(statsMap)[0]);
+
+    // Injury report bar
+    const injured = players.filter(p => injuryMap[p.id]);
+    const injBar = document.getElementById('injury-bar');
+    if (injured.length) {
+      injBar.style.display = 'block';
+      injBar.innerHTML = `<span style="color:var(--loss);">⚠ INJURY REPORT: </span>` +
+        injured.map(p => `<span style="color:var(--dim);">${p.fullName} (${injuryMap[p.id].detail || injuryMap[p.id].status})</span>`).join(' · ');
+    }
+
+    // Render roster
+    const grid = document.getElementById('roster-grid');
+    grid.innerHTML = '';
+    players.slice(0, 12).forEach(p => {
+      const inj = injuryMap[p.id] || injuryMapByName[(p.fullName||'').toLowerCase()];
+      let statusClass = 'active', statusLabel = 'ACTIVE';
+      if (inj) {
+        const s = inj.status;
+        if (s.includes('out') || s === 'ir') {
+          statusClass = 'out';
+          statusLabel = inj.detail ? `OUT (${inj.detail.toUpperCase()})` : 'OUT';
+        } else if (s.includes('question') || s.includes('doubt') || s.includes('probable')) {
+          statusClass = 'questionable';
+          statusLabel = s.toUpperCase();
+        }
+      }
+
+      const s = statsMap[p.id] || { ppg: '—', reb: '—', ast: '—' };
+
+      grid.innerHTML += `
+        <div class="player-row">
+          <div class="player-num">${p.jersey || '—'}</div>
+          <div class="player-info">
+            <div class="player-name">${(p.fullName || '—').toUpperCase()}</div>
+            <div class="player-pos">${p.position?.abbreviation || '—'}</div>
+          </div>
+          <div class="player-stats">
+            <div class="player-ppg">${s.ppg} PPG</div>
+            <div class="player-misc">${s.reb} REB · ${s.ast} AST</div>
+          </div>
+          <div class="status-badge ${statusClass}">${statusLabel}</div>
+        </div>`;
+    });
+
+    badge.textContent = '✓ LIVE · ESPN';
+    badge.style.color = 'var(--win)';
+
+  } catch(e) {
+    console.warn('Roster error:', e.message);
+    badge.textContent = 'LIVE · ESPN';
+    badge.style.color = 'var(--win)';
+  }
+}
+
+// ── INIT ──
+async function init() {
+  await Promise.all([
+    fetchTeamInfo(),
+    fetchSchedule(),
+    fetchStandings(),
+    fetchRoster(),
+  ]);
+}
+
+init();
+
+// Auto refresh
+setInterval(() => { fetchSchedule(); fetchTeamInfo(); }, 30000);  // scores/live every 30s
+setInterval(() => { fetchStandings(); fetchRoster(); }, 300000);   // standings/roster every 5min
+</script>
+</body>
+</html>
